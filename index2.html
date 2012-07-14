@@ -1,0 +1,57 @@
+
+<html>
+    <!-- Templates -->
+    <script type="text/html" id="template-test">
+        <div class='test'>
+            <strong>Testing</strong>
+            <span>Template</span>
+        </div>
+    </script>
+    
+    <script type="text/template" id="template-header">
+        
+            <div class="navbar-inner">
+                <div class="container">
+
+                    <a class="brand" href="#">Media Organizer</a>
+                        <ul class="nav nav-pills">
+                            <li class="active" style="display:inline;"><a href="#">Home</a></li>
+                            <li style="display:inline;"><a href="#movies">Movies</a></li>
+                            <li style="display:inline;"><a href="#">Home</a></li>
+                            <li style="display:inline;"><a href="#contact">Contact</a></li>
+                        </ul>
+                </div>
+            </div>
+        
+    </script>
+    <!-- End Templates -->
+    
+    <script>
+        window.App = {};
+    </script>
+    <head>
+        <title>Media Collection</title>
+        <script src="lib/backbone/test/vendor/jquery-1.7.1.js"></script>
+        <script src="lib/backbone/test/vendor/underscore.js"></script>
+        <script src="lib/backbone/backbone.js"></script>
+        <script src="lib/backbone/backbone-localstorage.js"></script>
+        <script src="ModelsCollections.js"></script>
+        <script src="Views.js"></script>
+        <script src="main.js"></script>
+        
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/styles.css" rel="stylesheet">
+    </head>
+    
+    <body>
+        <div class="header"></div>
+
+        <div class="container">
+            <div class="row">
+            <div id="content" class="span12>"></div>
+            </div>
+        </div>
+      
+    </body>
+
+</html>

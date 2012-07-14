@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Backbone.js and Twitter Bootstrap Sample App</title>
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <style>
+            body {
+                padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+            }
+        </style>
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/styles.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="header"></div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div id="leftbar" class="span2">
+                </div>
+                <div id="content" class="span10">
+                </div>
+            </div>
+        </div>
+        <!-------------Templates ------------->
+        <script type="text/template" id="template-header">
+            <div class="navbar navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="brand" href="#">Media Manager</a>
+                        <div class="nav-collapse">
+                            <ul class="nav">
+                                <li id="fc_home" class="fc_header active"><a title="Media Manager Home" href="#">Home</a></li>
+                                <li id="fc_movies" class="fc_header"><a title="View movie list" href="#movies">Movies</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+        <script type="text/template" id="template-movie-item">
+            <a class="movieListItem" href="#movies/<%= model.id %>"><%= model.title %></a>
+        </script>
+        <script type="text/template" id="template-movie-details">
+            <div class="btn-group">
+                <a class="btn btn-primary addEditContent"><% if(isNew){print("Add New Movie")}else{print("Edit")}%></a>
+            </div>
+            <% if(isNew){%>
+                <div class="hiddenContent editContent">
+                    <form class="form-horizontal">
+                        <fieldset>
+                            <legend>Add a movie to your collection</legend>
+                            <div class="control-group">
+                                <label class="control-label" for="stars">Star rating</label>
+                                <div class="controls">
+                                    <div class="starControl">
+                                      <img src="img/star-gold16.png" class="starRating star1" rating="1">
+                                      <img src="img/star-white16.png" class="starRating star2" rating="2">
+                                      <img src="img/star-white16.png" class="starRating star3" rating="3">
+                                      <img src="img/star-white16.png" class="starRating star4" rating="4">
+                                      <img src="img/star-white16.png" class="starRating star5" rating="5">
+                                     </div>
+                                    <p class="help-block">Your star rating of the movie</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="title">Title</label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge" id="titleInput">  
+                                    <p class="help-block">The title of the movie</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="year">Year released</label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge" id="yearInput">  
+                                    <p class="help-block">The year the movie came out</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="director">Director</label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge" id="directorInput">  
+                                    <p class="help-block">Who directed the movie</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="actors">Actors</label>
+                                <div class="controls">
+                                      <div class="actors">
+                                            <input type="text" class="input-xlarge actor">
+                                            <span class="addActorField"><img src="img/plus-white.png"></span>
+                                      </div>
+                                    <p class="help-block">Actors in the movie</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="actresses">Actresses</label>
+                                <div class="controls">
+                                      <div class="actresses">
+                                            <input type="text" class="input-xlarge actress">
+                                            <span class="addActressField"><img src="img/plus-white.png"></span>
+                                      </div>
+                                    <p class="help-block">Actresses in the movie</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="genre">Genre</label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge" id="genreInput">  
+                                    <p class="help-block">The genre the movie</p>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary save">Save</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            <% }else{%>
+                <div class="displayContent"><%console.log(model)%>
+                    <table class="table table-condensed" style="margin-left:160px; width:50%;">
+                        <legend>Movie Details</legend>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-info">Stars</span></td>
+                                <td><%_.each([1,2,3,4,5],function(index,value){
+                                    if(model.stars <= value){
+                                     print('<img src="img/star-white16.png">');   
+                                    }
+                                    else{
+                                        print('<img src="img/star-gold16.png">');
+                                    }
+                                });%></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-info">Title</span></td>
+                                <td><%=model.title%></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-info">Release year</span></td>
+                                <td><%=model.year%></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-info">Director</span></td>
+                                <td><%=model.director%></td>
+                            </tr>
+                            <%
+                                _.each(model.actors,function(value,index){
+                                   if(index == 0){
+                                        print('<tr><td><span class="badge badge-info">Actors</span></td><td>' + value + '</td></tr>');
+                                    }
+                                    else{
+                                        print('<tr><td></td><td>' + value + '</td></tr>');
+                                    }
+                                });
+                            %>
+                            <%
+                                _.each(model.actresses,function(value,index){
+                                    if(index == 0){
+                                        print('<tr><td><span class="badge badge-info">Actresses</span></td><td>' + value + '</td></tr>');
+                                    }
+                                    else{
+                                        print('<tr><td></td><td>' + value + '</td></tr>');
+                                    }
+                                });
+                            %>
+                            <tr>
+                                <td><span class="badge badge-info">Genre</span></td>
+                                <td><%=model.genre%></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="hiddenContent editContent">
+                    <form class="form-horizontal">
+                            <fieldset>
+                                <legend>Edit a movie in your collection</legend>
+                                <div class="control-group">
+                                <label class="control-label" for="stars"><span class="badge badge-info">Star rating</span></label>
+                                <div class="controls">
+                                    <div class="starControl">
+                                      <img src="img/star-gold16.png" class="starRating star1" rating="1">
+                                      <img src="img/star-white16.png" class="starRating star2" rating="2">
+                                      <img src="img/star-white16.png" class="starRating star3" rating="3">
+                                      <img src="img/star-white16.png" class="starRating star4" rating="4">
+                                      <img src="img/star-white16.png" class="starRating star5" rating="5">
+                                     </div>
+                                    <p class="help-block">Your star rating of the movie</p>
+                                </div>
+                            </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="title"><span class="badge badge-info"> Title</span></label>
+                                    <div class="controls">
+                                        <input type="text" class="input-xlarge" id="titleInput" value="<%= model.title %>">  
+                                        <p class="help-block">The title of the movie</p>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                <label class="control-label" for="year"><span class="badge badge-info">Year released</span></label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge" id="yearInput" value="<%=model.year%>">  
+                                    <p class="help-block">The year the movie came out</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="director"><span class="badge badge-info">Director</span></label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge" id="directorInput" value="<%=model.director%>">  
+                                    <p class="help-block">Who directed the movie</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="actors"><span class="badge badge-info">Actors</span></label>
+                                <div class="controls">
+                                      <div class="actors">
+                                            <%
+                                                var actorCount = model.actors.length;
+                                                if(actorCount == 0){
+                                                    print('<input type="text" class="input-xlarge actor">');
+                                                    print('<span class="addActorField"><img src="img/plus-white.png">');
+                                                }
+                                                _.each(model.actors,function(value,index){
+                                                    if(index+1 == actorCount){
+                                                        print('<input type="text" class="input-xlarge actor" value="' + value + '">');
+                                                        print('<span class="addActorField"><img src="img/plus-white.png">');
+                                                    }
+                                                    else if(index+1 == actorCount-1){
+                                                        print('<input type="text" class="input-xlarge actor" value="' + value + '">');
+                                                        print('<span class="removeActorField"><img src="img/minus-white.png"></span><br>');
+                                                    }
+                                                    else{
+                                                        print('<input type="text" class="input-xlarge actor" value="' + value + '"><br>');
+                                                    }
+                                                });
+                                            %>
+                                            <!--<input type="text" class="input-xlarge actor">
+                                            <span class="addActorField"><img src="img/plus-white.png"></span>-->
+                                      </div>
+                                    <p class="help-block">Actors in the movie</p>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="actresses"><span class="badge badge-info">Actresses</span></label>
+                                <div class="controls">
+                                      <div class="actresses">
+                                            <%
+                                                var actressCount = model.actresses.length;
+                                                if(actressCount == 0){
+                                                    print('<input type="text" class="input-xlarge actress">');
+                                                        print('<span class="addActressField"><img src="img/plus-white.png">');
+                                                }
+                                                _.each(model.actresses,function(value,index){
+                                                    if(index+1 == actressCount){
+                                                        print('<input type="text" class="input-xlarge actress" value="' + value + '">');
+                                                        print('<span class="addActressField"><img src="img/plus-white.png">');
+                                                    }
+                                                    else if(index+1 == actressCount-1){
+                                                        print('<input type="text" class="input-xlarge actres" value="' + value + '">');
+                                                        print('<span class="removeActressField"><img src="img/minus-white.png"></span><br>');
+                                                    }
+                                                    else{
+                                                        print('<input type="text" class="input-xlarge actres" value="' + value + '"><br>');
+                                                    }
+                                                });
+                                            %>
+                                            <!--<input type="text" class="input-xlarge actor">
+                                            <span class="addActorField"><img src="img/plus-white.png"></span>-->
+                                      </div>
+                                    <p class="help-block">Actresses in the movie</p>
+                                </div>
+                            </div>
+                                <div class="control-group">
+                                <label class="control-label" for="genre"><span class="badge badge-info">Genre</span></label>
+                                <div class="controls">
+                                    <input type="text" class="input-xlarge" id="genreInput" value="<%=model.genre%>">  
+                                    <p class="help-block">The genre of the movie</p>
+                                </div>
+                            </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-primary save">Save</button>
+                                    <button type="button" class="btn btn-danger remove">Remove Movie</button>
+                                </div>
+                            </fieldset>
+                        </form>
+                   </div>
+            <%}%>
+            
+        </script>
+        <!-------------End Templates ------------->
+        <script>
+            window.App = {};
+            window.App.Models = {};
+            window.App.Collections = {};
+            window.App.Views = {};
+            window.App.Routers = {};
+        </script>
+    
+        <script src="lib/backbone/test/vendor/jquery-1.7.1.js"></script>
+        <script src="lib/backbone/test/vendor/underscore.js"></script>
+        <script src="lib/backbone/backbone.js"></script>
+        <script src="lib/backbone/backbone-localstorage.js"></script>
+        <script src="ModelsCollections.js"></script>
+        <script src="Views.js"></script>
+        <script src="main.js"></script>
+    </body>
+</html>
