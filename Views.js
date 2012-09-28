@@ -21,12 +21,50 @@ window.MovieListView = Backbone.View.extend({
         App.Collections.movies.bind("reset",this.render,this);
         App.Collections.movies.bind("remove",this.render,this);
     },
+    events:{
+        "click .sortMovieList":"sortMovieList",
+        "click .showAdvancedSortOptions":"showAdvancedSortOptions",
+        "click .advancedSort":"advancedSort",
+        "click .removeFilter":"removeFilter"
+    },
+    showAdvancedSortOptions:function(){
+        var header = "<h3>Advanced movie sorting options</h3>";
+        var body = _.template($("#movie-list-filter-body").html(),{"model":"value to set"});
+        var footer = '<a href="#" class="btn" data-dismiss="modal">Close</a>'+
+                     '<button type="button" class="btn btn-primary advancedSort">Sort</button>';
+        utils.injectModal(this.$el,header,body,footer);
+        $("#primaryModal").modal("toggle");
+    },
+    advancedSort:function(){
+        var testVal = $("#testing").val();
+        console.log("the extracted value is: ",testVal);
+        this.collection.models = this.collection.filter(function(movie){
+            return movie.get("stars") <= "3";
+        });
+        $("#primaryModal").modal("toggle");
+        this.render();
+    },
+    sortMovieList:function(event){
+        var sortType = $(event.currentTarget.attributes.name).val();
+        this.collection.sortMovieList(sortType);
+    },
+    removeFilter:function(){
+        App.Collections.movies.fetch();
+    },
     render:function(){
         var $ul = this.el;
         $($ul).empty();
-        //this.collection.each(function(model){
-        App.Collections.movies.each(function(model){
+        var $sortOptions = $($ul).append('<div id="sortOptions"></div>');
+        $sortOptions.append('<button class="sortMovieList" name="asc"><img src="img/sort-acend.png" alt="a to z"></img></button> ');
+        $sortOptions.append('<button class="sortMovieList" name="dec"><img src="img/sort-decend.png" alt="z to a"></img></button> ');
+        $sortOptions.append('<button class="showAdvancedSortOptions"><img src="img/options_advanced.png" alt="advanced"></img></button> '); 
+        $sortOptions.append('<button class="removeFilter"><img src="img/filter-remove.png" alt="remove filter"></img></button> ');
+        $sortOptions.append('<input type="text"class="search-query typeahead" placeholder="Search..." data-provide="typeahead">');
+        this.collection.each(function(model){
             $($ul).append(new window.MovieItemView({model:model}).render().el);
+        });
+        $(".typeahead").typeahead({
+            source:Array("alpha","beta","kappa")
         });
         return this;
     },

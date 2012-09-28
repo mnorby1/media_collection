@@ -20,6 +20,8 @@ var MediaRouter = Backbone.Router.extend({
          */
         $(".fc_header").removeClass("active");
         $("#fc_home").addClass("active");
+        $("#leftbar").html("");
+        $("#content").html("");
     },
     movieList:function()
     {
@@ -54,6 +56,7 @@ var MediaRouter = Backbone.Router.extend({
  */
 $(document).ready(function(){
     //var mediaRouter = new MediaRouter;
+    $('#primaryModal').modal({show:false});
     App.Routers.mediaRouter = new MediaRouter;
     Backbone.history.start();
 });

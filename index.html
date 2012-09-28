@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Backbone.js and Twitter Bootstrap Sample App</title>
+        <title>Movie Collection</title>
         <meta name="description" content="">
         <meta name="author" content="">
         <style>
@@ -23,7 +23,33 @@
                 </div>
             </div>
         </div>
+        <!-------------Universal modal box ------------->
+        <script type="text/template" id="modalBox">
+            <div class="modal hide fade" id="primaryModal">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </script>
+        <!-------------End modal box ------------->
         <!-------------Templates ------------->
+        <script type="text/template" id="movie-list-filter-body">
+            <form>
+                <fieldset>
+                    <div class="control-group">
+                        <label class="control-label" for="genre"><span class="badge badge-info">Genre</span></label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" id="genreInput" value="<%=model%>">  
+                            <p class="help-block">The genre of the movie</p>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </script>
         <script type="text/template" id="template-header">
             <div class="navbar navbar-fixed-top">
                 <div class="navbar-inner">
@@ -301,6 +327,8 @@
         <script src="lib/backbone/test/vendor/underscore.js"></script>
         <script src="lib/backbone/backbone.js"></script>
         <script src="lib/backbone/backbone-localstorage.js"></script>
+        <script src="lib/bootstrap-modal.js"></script>
+        <script src="lib/utils.js"></script>
         <script src="ModelsCollections.js"></script>
         <script src="Views.js"></script>
         <script src="main.js"></script>
