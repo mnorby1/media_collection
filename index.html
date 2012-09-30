@@ -314,6 +314,26 @@
             <%}%>
             
         </script>
+        <script type="text/template" id="template-movie-list-search">
+            <div id="sortOptions">
+                <button class="sortMovieList" name="asc" title="Order from A-Z">
+                    <img src="img/sort-acend.png" alt="a to z"></img>
+                </button>
+                <button class="sortMovieList" name="dec" title="Order from Z-A">
+                    <img src="img/sort-decend.png" alt="z to a"></img>
+                </button>
+                <button class="showAdvancedSortOptions" title="Advanced search">
+                    <img src="img/options_advanced.png" alt="advanced"></img>
+                </button> 
+                <button class="removeFilter" title="Remove filters">
+                    <img src="img/filter-remove.png" alt="remove filter"></img>
+                </button>
+                <button class="help" title="Help">
+                    <img src="img/help.png" alt="Help"></img>
+                </button>
+                <input type="text" class="search-query" placeholder="Search...">
+            </div>
+        </script>
         <!-------------End Templates ------------->
         <script>
             window.App = {};
@@ -328,6 +348,7 @@
         <script src="lib/backbone/backbone.js"></script>
         <script src="lib/backbone/backbone-localstorage.js"></script>
         <script src="lib/bootstrap-modal.js"></script>
+        <script src="lib/bootstrap.min.js"></script>
         <script src="lib/utils.js"></script>
         <script src="ModelsCollections.js"></script>
         <script src="Views.js"></script>

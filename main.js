@@ -35,9 +35,9 @@ var MediaRouter = Backbone.Router.extend({
         App.Collections.movies = new window.Movies();
         App.Collections.movies.fetch({
             success:function(){
-                App.Views.movieListView = new MovieListView({collection:App.Collections.movies});
+                App.Views.movieListMasterView = new MovieListMasterView({collection:App.Collections.movies});
                 App.Views.movieDetailView = new MovieDetailView({model:new Movie(),collection:App.Collections.movies});
-                $("#leftbar").html(App.Views.movieListView.render().el);
+                $("#leftbar").html(App.Views.movieListMasterView.render().el);
                 $("#content").html(App.Views.movieDetailView.render().el);
             },
             error:function(){

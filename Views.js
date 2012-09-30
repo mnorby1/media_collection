@@ -7,27 +7,75 @@ window.HeaderView = Backbone.View.extend({
         template : _.template($("#template-header").html()),
     
     render:function(){
-        console.log("Rendering the header");
         $(this.el).html(this.template());
         return this;
     }
 });
-window.MovieListView = Backbone.View.extend({
-    tagName:"ul",
-    className:"nav nav-pills nav-stacked",
+window.MovieListMasterView = Backbone.View.extend({
+    tagName:"div",
     initialize:function(){
         _.bindAll(this,'render');
-        App.Collections.movies.bind("add",this.render,this);
-        App.Collections.movies.bind("reset",this.render,this);
-        App.Collections.movies.bind("remove",this.render,this);
+    },
+    events:{
+    },
+    render:function(){
+        this.SubViews = {};
+        this.SubViews.searchView = new window.MovieListSearchView({collection:this.collection});
+        this.SubViews.listView = new window.MovieListView({collection:this.collection});
+        $(this.el).append(this.SubViews.searchView.render().el);
+        $(this.el).append(this.SubViews.listView.render().el);
+        return this;
+    }
+});
+window.MovieListSearchView = Backbone.View.extend({
+    tagName:"div",
+    initialize:function(){
+        _.bindAll(this,'render');
+        this.template = _.template($("#template-movie-list-search").html());
     },
     events:{
         "click .sortMovieList":"sortMovieList",
         "click .showAdvancedSortOptions":"showAdvancedSortOptions",
         "click .advancedSort":"advancedSort",
-        "click .removeFilter":"removeFilter"
+        "click .removeFilter":"removeFilter",
+        "keyup .search-query":"searchBarFilter"
     },
-    showAdvancedSortOptions:function(){
+    searchBarFilter:function(event){
+        if(this.isCharHandled(event)){
+            var query = event.currentTarget.value;
+            var newCollection=[];
+            query = query.toLowerCase();
+            query = query.split(",");
+            _.each(query,function(searchValue){
+                App.Collections.movies.fetch({trigger:false});
+                var key = searchValue.substring(0,searchValue.indexOf(":"));
+                var searchString = searchValue.substring(searchValue.indexOf(":")+1);
+                var validKeys = _.keys(App.Collections.movies.models[0].attributes);
+                if(validKeys.indexOf(key) < 0){
+                    key = "title";
+                }
+                newCollection = _.union(newCollection,App.Collections.movies.filter(function(movie){
+                        return movie.get(key).toString().toLowerCase().indexOf(searchString) >= 0;
+                    }));
+            });
+            this.collection.reset(newCollection);
+        }
+    },
+    isCharHandled:function(evt){
+        if (typeof evt.which == "undefined") {
+            return true;
+        } 
+        else if (typeof evt.which == "number" && evt.which > 0) {
+            return !evt.ctrlKey && !evt.metaKey && !evt.altKey 
+                && evt.which != 16;
+        }
+        return false;   
+    },
+    render:function(){
+        $(this.el).html(this.template());
+        return this;
+    },
+    showAdvancedSortOptions:function(){//TODO: turn this into a view
         var header = "<h3>Advanced movie sorting options</h3>";
         var body = _.template($("#movie-list-filter-body").html(),{"model":"value to set"});
         var footer = '<a href="#" class="btn" data-dismiss="modal">Close</a>'+
@@ -50,21 +98,27 @@ window.MovieListView = Backbone.View.extend({
     },
     removeFilter:function(){
         App.Collections.movies.fetch();
+        App.Collections.movies.trigger("test");
+        $(".search-query").val("");
+    },
+});
+window.MovieListView = Backbone.View.extend({
+    tagName:"ul",
+    className:"nav nav-pills nav-stacked",
+    initialize:function(){
+        _.bindAll(this,'render');
+        App.Collections.movies.bind("add",this.render,this);
+        App.Collections.movies.bind("reset",this.render,this);
+        App.Collections.movies.bind("remove",this.render,this);
+        App.Collections.movies.bind("change",this.render,this);
+    },
+    events:{
     },
     render:function(){
         var $ul = this.el;
         $($ul).empty();
-        var $sortOptions = $($ul).append('<div id="sortOptions"></div>');
-        $sortOptions.append('<button class="sortMovieList" name="asc"><img src="img/sort-acend.png" alt="a to z"></img></button> ');
-        $sortOptions.append('<button class="sortMovieList" name="dec"><img src="img/sort-decend.png" alt="z to a"></img></button> ');
-        $sortOptions.append('<button class="showAdvancedSortOptions"><img src="img/options_advanced.png" alt="advanced"></img></button> '); 
-        $sortOptions.append('<button class="removeFilter"><img src="img/filter-remove.png" alt="remove filter"></img></button> ');
-        $sortOptions.append('<input type="text"class="search-query typeahead" placeholder="Search..." data-provide="typeahead">');
         this.collection.each(function(model){
             $($ul).append(new window.MovieItemView({model:model}).render().el);
-        });
-        $(".typeahead").typeahead({
-            source:Array("alpha","beta","kappa")
         });
         return this;
     },
