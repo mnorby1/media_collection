@@ -17,6 +17,12 @@ window.MovieListMasterView = Backbone.View.extend({
         _.bindAll(this,'render');
     },
     events:{
+        "click .pager":"changePage"
+    },
+    changePage:function(event){
+        event.preventDefault();
+        var direction = $(event.target.parentElement).attr('data-direction');
+        this.collection.trigger("pageinate",direction);
     },
     render:function(){
         this.SubViews = {};
@@ -24,6 +30,7 @@ window.MovieListMasterView = Backbone.View.extend({
         this.SubViews.listView = new window.MovieListView({collection:this.collection});
         $(this.el).append(this.SubViews.searchView.render().el);
         $(this.el).append(this.SubViews.listView.render().el);
+        $(this.el).append(_.template($("#template-pagination-controls").html()));
         return this;
     }
 });
@@ -108,16 +115,45 @@ window.MovieListView = Backbone.View.extend({
     initialize:function(){
         _.bindAll(this,'render');
         App.Collections.movies.bind("add",this.render,this);
-        App.Collections.movies.bind("reset",this.render,this);
+        App.Collections.movies.bind("reset",this.resetCollection,this);
         App.Collections.movies.bind("remove",this.render,this);
         App.Collections.movies.bind("change",this.render,this);
+        App.Collections.movies.bind("pageinate",this.paginate,this);
+        this.recordsPerPage = 10;
+        this.currentPage = 0;
+        this.lastPage = 0;
     },
     events:{
+        
+    },
+    paginate:function(direction){
+        switch(direction){
+            case 'forward':
+                this.currentPage++;
+                if(this.currentPage > this.lastPage)
+                    this.currentPage = 0;
+                break;
+            case 'back':
+                this.currentPage--;
+                if(this.currentPage < 0)
+                    this.currentPage = this.lastPage;
+                break;
+        }
+        this.render();
+    },
+    resetCollection:function(){
+        this.currentPage = 0;
+        this.render();
     },
     render:function(){
         var $ul = this.el;
         $($ul).empty();
-        this.collection.each(function(model){
+        var start = this.recordsPerPage * this.currentPage;
+        var end = start + this.recordsPerPage;
+        var tmpCollection = _.clone(this.collection);
+        tmpCollection.models = tmpCollection.models.slice(start,end);
+        this.lastPage = Math.floor(tmpCollection.length / this.recordsPerPage);
+        tmpCollection.each(function(model){
             $($ul).append(new window.MovieItemView({model:model}).render().el);
         });
         return this;
