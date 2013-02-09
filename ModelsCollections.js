@@ -27,7 +27,7 @@ window.MovieLibrary = window.Movie.extend({
 
 window.Movies = Backbone.Collection.extend({
     model:Movie,
-    localStorage: new Store("mediatracker-backbone"),
+    localStorage: new Store("movies.mediatracker-backbone"),
     sortStrategies:{
         dec:function(model){
             var str = model.get("title");
@@ -49,4 +49,26 @@ window.Movies = Backbone.Collection.extend({
         this.comparator = this.sortStrategies[sortType];
         this.sort();
     }
+});
+
+window.Storage = Backbone.Model.extend({
+    options:{
+        types:['BookShelf','Binder']
+    },
+    defaults:{
+        type:"BookShelf",
+        entities:"",
+        perEntity:"",
+        name:"",
+        description:""
+    },
+    events:{
+      "change":function(){console.log("Item changed")},
+      "add":function(){console.log("Item added")}
+    },
+});
+
+window.Storages = Backbone.Collection.extend({
+    model:Storage,
+    localStorage: new Store("storages.mediatracker-backbone"),
 });

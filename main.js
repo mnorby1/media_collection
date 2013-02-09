@@ -10,7 +10,9 @@ var MediaRouter = Backbone.Router.extend({
     routes: {
         "": "home",
         "movies":"movieList",
-        "movies/:movie":"movieDetails"
+        "movies/:movie":"movieDetails",
+        "storage":"storageList",
+        "storage/:container":"storageDetails"
     },
     home: function(){
         console.log("Initilizing home");
@@ -49,6 +51,32 @@ var MediaRouter = Backbone.Router.extend({
         var currentModel = App.Collections.movies.get(movie);
         App.Views.movieDetailView = new MovieDetailView({model:currentModel});
         $("#content").html(App.Views.movieDetailView.render().el);
+    },
+    storageList:function()
+    {
+        console.log("Routing for storage display");
+        /*************
+         * Remove the active class from all elements in header. Add it to the
+         * correct one.
+         */
+         $(".fc_header").removeClass("active");
+         $("#fc_storages").addClass("active");
+         App.Collections.storages = new window.Storages();
+         App.Collections.storages.fetch({
+             success:function(){
+                 App.Views.storageListMasterView = new StorageListMasterView({collection:App.Collections.storages});
+                 App.Views.storageDetailView = new StorageDetailView({model:new Storage(),collection:App.Collections.storages});
+                $("#leftbar").html(App.Views.storageListMasterView.render().el);
+                $("#content").html(App.Views.storageDetailView.render().el);
+             },
+             error:function(){
+                 console.log("There was an error retrieving the storage list data");
+             }
+         });
+    },
+    storageDetails:function(container)
+    {
+        
     }
 });
 /*************
@@ -57,6 +85,6 @@ var MediaRouter = Backbone.Router.extend({
 $(document).ready(function(){
     //var mediaRouter = new MediaRouter;
     $('#primaryModal').modal({show:false});
-    App.Routers.mediaRouter = new MediaRouter;
+    App.Routers.mediaRouter = new MediaRouter();
     Backbone.history.start();
 });

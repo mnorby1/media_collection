@@ -167,10 +167,8 @@ window.MovieItemView = Backbone.View.extend({
     },
     initialize:function(){
         _.bindAll(this,'render');
-        //App.Collections.movies.on("removeActive","removeActive");
         this.bind("removeActive",this.removeActive,this);
         this.template = _.template($("#template-movie-item").html());
-        //console.log("template init: ",$("#template-movie-item").html());
     },
     render:function(){
         $(this.el).html(this.template({model:this.model.toJSON()}));
@@ -311,5 +309,154 @@ window.MovieDetailView = Backbone.View.extend({
             $(this).after('<span class="addActressField"><img src="img/plus-white.png"</span>');
             console.log(this);
         });
+    }
+});
+window.StorageListMasterView = Backbone.View.extend({
+    tagName:"div",
+    initialize:function(){
+        _.bindAll(this,'render');
+    },
+    events:{
+        "click .pager":"changePage"
+    },
+    changePage:function(event){
+        event.preventDefault();
+        var direction = $(event.target.parentElement).attr('data-direction');
+        this.collection.trigger("pageinate",direction);
+    },
+    render:function(){
+        this.SubViews = {};
+        this.SubViews.listView = new window.StorageListView({collection:this.collection});
+        $(this.el).append(this.SubViews.listView.render().el);
+        $(this.el).append(_.template($("#template-pagination-controls").html()));
+        return this;
+    }
+});
+window.StorageListView = Backbone.View.extend({
+    tagName:"ul",
+    className:"nav nav-pills nav-stacked",
+    initialize:function(){
+        _.bindAll(this,'render');
+        App.Collections.storages.bind("add",this.render,this);
+        App.Collections.storages.bind("reset",this.resetCollection,this);
+        App.Collections.storages.bind("remove",this.render,this);
+        App.Collections.storages.bind("change",this.render,this);
+        App.Collections.storages.bind("pageinate",this.paginate,this);
+        this.recordsPerPage = 10;
+        this.currentPage = 0;
+        this.lastPage = 0;
+    },
+    events:{
+        
+    },
+    paginate:function(direction){
+        switch(direction){
+            case 'forward':
+                this.currentPage++;
+                if(this.currentPage > this.lastPage)
+                    this.currentPage = 0;
+                break;
+            case 'back':
+                this.currentPage--;
+                if(this.currentPage < 0)
+                    this.currentPage = this.lastPage;
+                break;
+        }
+        this.render();
+    },
+    resetCollection:function(){
+        this.currentPage = 0;
+        this.render();
+    },
+    render:function(){
+        var $ul = this.el;
+        $($ul).empty();
+        var start = this.recordsPerPage * this.currentPage;
+        var end = start + this.recordsPerPage;
+        var tmpCollection = _.clone(this.collection);
+        tmpCollection.models = tmpCollection.models.slice(start,end);
+        this.lastPage = Math.floor(tmpCollection.length / this.recordsPerPage);
+        tmpCollection.each(function(model){
+            $($ul).append(new window.StorageItemView({model:model}).render().el);
+        });
+        return this;
+    }
+});
+window.StorageItemView = Backbone.View.extend({
+    tagName:"li",
+    className:"",
+    events:{
+      "click .storageListItem":"changeActive"
+    },
+    initialize:function(){
+        _.bindAll(this,'render');
+        this.bind("removeActive",this.removeActive,this);
+        this.template = _.template($("#template-storage-item").html());
+    },
+    render:function(){
+        $(this.el).html(this.template({model:this.model.toJSON()}));
+        return this;
+    },
+    changeActive:function(){
+        console.log("Changing the active state");
+        $(".storageListItem").parent().removeClass("active");
+        App.Collections.storages.trigger("removeActive");
+        $(this.el).addClass("active");
+    },
+    removeActive:function(){
+        $(this.el).removeClass("active");
+    }
+});
+window.StorageDetailView = Backbone.View.extend({
+    tagName:"div",
+    events:{
+      "click .addEditContent":"displayAddEditForm",
+      "click .save":"saveStorage",
+      "click .remove":"removeStorage",
+    },
+    initialize:function(){
+        _.bindAll(this,'render');
+    },
+    render:function(){
+        this.template = _.template($("#template-storage-details").html());
+        var isNew = this.model.isNew();
+        $(this.el).html(this.template({model:this.model,isNew:isNew}));
+        return this;
+    },
+    displayAddEditForm:function(){
+        if($(".addEditContent").hasClass("btn-primary")){
+            $(".addEditContent").removeClass("btn-primary");
+            $(".addEditContent").addClass("btn-warning");
+            $(".editContent").removeClass("hiddenContent");
+            $(".displayContent").addClass("hiddenContent");
+        }
+        else{
+            $(".addEditContent").removeClass("btn-warning");
+            $(".addEditContent").addClass("btn-primary");
+            $(".editContent").addClass("hiddenContent");
+            $(".displayContent").removeClass("hiddenContent");
+        }
+    },
+    saveStorage:function(){
+        this.model.set({
+            type:$("#typeInput").val(),
+            entities:$("#entitiesInput").val(),
+            perEntity:$("#perEntityInput").val(),
+            name:$("#nameInput").val(),
+            description:$("#descriptionInput").val()
+        });
+        console.log("Save model:",this.model);
+        App.Collections.storages.add(this.model);
+        this.model.save();
+        App.Routers.mediaRouter.navigate("#storage",{trigger:true});
+        this.render();
+    },
+    removeStorage:function(){
+      var yes = confirm("Are you sure you want to remove this storage item? This action is irreversable.");
+      if(yes){
+          this.model.destroy();
+          App.Collections.storages.remove(this.model);
+          App.Routers.mediaRouter.navigate("#storage",{trigger:true});
+      }
     }
 });
