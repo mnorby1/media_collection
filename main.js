@@ -76,7 +76,9 @@ var MediaRouter = Backbone.Router.extend({
     },
     storageDetails:function(container)
     {
-        
+        var currentModel = App.Collections.storages.get(container);
+        App.Views.storageDetailView = new StorageDetailView({model:currentModel});
+        $("#content").html(App.Views.storageDetailView.render().el);
     }
 });
 /*************

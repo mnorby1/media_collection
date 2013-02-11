@@ -66,7 +66,7 @@
             <a class="movieListItem" href="#movies/<%= model.id %>"><%= model.title %></a>
         </script>
         <script type="text/template" id="template-storage-item">
-            <a class="storageListItem" href="#storage/<%= model.id %>"><%= model.title %></a>
+            <a class="storageListItem" href="#storage/<%= model.id %>"><%= model.name %></a>
         </script>
         <script type="text/template" id="template-storage-details">
             <div class="btn-group">
@@ -85,9 +85,9 @@
                                 </div>
                             </div>
                             <div class="control-group">
-                                <label class="control-label" for="description">Descriptions</label>
+                                <label class="control-label" for="description">Description</label>
                                 <div class="controls">
-                                    <input type="text" class="input-xlarge" id="yearInput">  
+                                    <input type="text" class="input-xlarge" id="descriptionInput">  
                                     <p class="help-block">Describe the storage unit</p>
                                 </div>
                             </div>
@@ -95,34 +95,30 @@
                                 <label class="control-label" for="type">Storage Type</label>
                                 <div class="controls">
                                     <select type="text" class="input-xlarge" id="typeInput">
-                                        <%_.each(this.model.options.types,function(type){%>
-                                            <option value=<%=type%>><%=type%></option>
+                                        <%_.each(options.types,function(type){%>
+                                            <option value=<%=type.name%>><%=type.name%></option>
                                         <%});%>
                                     </select>
                                     <p class="help-block">What type of storage is this?</p>
                                 </div>
                             </div>
                             <div class="control-group">
-                                <%
-                                    if(model.options.types[0] == "BookShelf"){
-                                        entityLabel = "shelves";
-                                        entitySingular = "shelf";
-                                    }
-                                    else if(model.options.types[0] == "Binder"){
-                                        entityLabel = "pages";
-                                        entitySingular = "page";
-                                    }
-                                %>
-                                <label class="control-label" for="entities"><%=entityLabel%></label>
+                                <label class="control-label" for="entities">Number of <span class="entityLabel"> 
+                                    <%=options.types[model.type].entityLabel%></span>
+                                </label>
                                 <div class="controls">
                                     <input type="text" class="input-xlarge" id="entityInput">
-                                    <p class="help-block">How many <%=entityLabel%> does this containter have?</p>
+                                    <p class="help-block">How many <span class="entityLabel">
+                                        <%=options.types[model.type].entityLabel%></span> does this containter have?
+                                    </p>
                                 </div>
                             </div>
                             <div class="control-group">
-                                <label class="control-label" for="perentity">How many movies fit in this <%=entitySingular%></label>
+                                <label class="control-label" for="perentity">How many movies fit in ONE 
+                                    <span class="entitySingular"><%=options.types[model.type].entitySingular%></span>
+                                </label>
                                 <div class="controls">
-                                    <input type="text" class="input-xlarge">
+                                    <input type="text" class="input-xlarge" id="perEntityInput">
                                     <p class="help-block">This is the most movies that will fit here.</p>
                                 </div>
                             </div>
@@ -133,7 +129,7 @@
                     </form>
                 </div>
             <% }else{%>
-                <div class="displayContent"><%console.log(model)%>
+                <div class="displayContent"><%console.log("the model: ",model)%>
                     <table class="table table-condensed" style="margin-left:160px; width:50%;">
                         <legend>Storage Details</legend>
                         <tbody>
@@ -146,21 +142,11 @@
                                 <td><%=model.description%></td>
                             </tr>
                             <tr>
-                                <%
-                                    if(model.type == "BookShelf"){
-                                        entityLabel = "shelves";
-                                        entitySingular = "shelf";
-                                    }
-                                    else if(model.type == "Binder"){
-                                        entityLabel = "pages";
-                                        entitySingular = "page";
-                                    }
-                                %>
-                                <td><span class="badge badge-info">Number of <%=entityLabel%></span></td>
+                                <td><span class="badge badge-info">Number of <%=options.types[model.type].entityLabel%></span></td>
                                 <td><%=model.entities%></td>
                             </tr>
                             <tr>
-                                <td><span class="badge badge-info">Movies that fit on this <%=entitySingular%></span></td>
+                                <td><span class="badge badge-info">Movies that fit on ONE <%=options.types[model.type].entitySingular%></span></td>
                                 <td><%=model.perEntity%></td>
                             </tr>
                         </tbody>
@@ -178,9 +164,9 @@
                             </div>
                         </div>
                         <div class="control-group">
-                            <label class="control-label" for="description">Descriptions</label>
+                            <label class="control-label" for="description">Description</label>
                             <div class="controls">
-                                <input type="text" class="input-xlarge" id="yearInput" value="<%=model.description%>">  
+                                <input type="text" class="input-xlarge" id="descriptionInput" value="<%=model.description%>">  
                                 <p class="help-block">Describe the storage unit</p>
                             </div>
                         </div>
@@ -188,34 +174,32 @@
                             <label class="control-label" for="type">Storage Type</label>
                             <div class="controls">
                                 <select type="text" class="input-xlarge" id="typeInput">
-                                    <%_.each(model.options.types,function(type){%>
-                                        <option value=<%=type%>><%=type%></option>
+                                    <%_.each(options.types,function(type){%>
+                                        <option value=<%=type.name%><%if(model.type==type.name){print(' selected')}%>>
+                                            <%=type.name%>
+                                        </option>
                                     <%});%>
                                 </select>
                                 <p class="help-block">What type of storage is this?</p>
                             </div>
                         </div>
                         <div class="control-group">
-                            <%
-                                if(model.options.types[0] == "BookShelf"){
-                                    var entityLabel = "pages";
-                                    var entitySigular = "page";
-                                }
-                                else if(this.model.options.types[0] == "Binder"){
-                                    var entityLabel = "shelves";
-                                    var entitySingular = "shelf";
-                                }
-                            %>
-                            <label class="control-label" for="entities"><%=entityLabel%></label>
+                            <label class="control-label" for="entities">Number of <span class="entityLabel">
+                                <%=options.types[model.type].entityLabel%></span>
+                            </label>
                             <div class="controls">
                                 <input type="text" class="input-xlarge" id="entityInput"  value="<%=model.entities%>">
-                                <p class="help-block">How many <%=entityLabel%> does this containter have?</p>
+                                <p class="help-block">How many <span class="entityLabel"> 
+                                    <%=options.types[model.type].entityLabel%></span> does this containter have?
+                                </p>
                             </div>
                         </div>
                         <div class="control-group">
-                            <label class="control-label" for="perentity">How many movies fit in this <%=entitySingular%></label>
+                            <label class="control-label" for="perentity">How many movies fit in ONE 
+                                <span class="entitySingular"> <%=options.types[model.type].entitySingular%></span>
+                            </label>
                             <div class="controls">
-                                <input type="text" class="input-xlarge" value="<%=model.perEntity%>">
+                                <input type="text" class="input-xlarge" value="<%=model.perEntity%>" id="perEntityInput">
                                 <p class="help-block">This is the most movies that will fit here.</p>
                             </div>
                         </div>

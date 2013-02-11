@@ -53,10 +53,21 @@ window.Movies = Backbone.Collection.extend({
 
 window.Storage = Backbone.Model.extend({
     options:{
-        types:['BookShelf','Binder']
+        types:{
+            "Bookshelf":{
+                name:"Bookshelf",
+                entityLabel:"shelves",
+                entitySingular:"shelf"
+            },
+            "Binder":{
+                name:"Binder",
+                entityLabel:"pages",
+                entitySingular:"page"
+            }
+        }
     },
     defaults:{
-        type:"BookShelf",
+        type:"Bookshelf",
         entities:"",
         perEntity:"",
         name:"",

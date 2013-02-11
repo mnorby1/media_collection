@@ -413,6 +413,7 @@ window.StorageDetailView = Backbone.View.extend({
       "click .addEditContent":"displayAddEditForm",
       "click .save":"saveStorage",
       "click .remove":"removeStorage",
+      "change #typeInput":"changeEntityLabel"
     },
     initialize:function(){
         _.bindAll(this,'render');
@@ -420,7 +421,8 @@ window.StorageDetailView = Backbone.View.extend({
     render:function(){
         this.template = _.template($("#template-storage-details").html());
         var isNew = this.model.isNew();
-        $(this.el).html(this.template({model:this.model,isNew:isNew}));
+        $(this.el).html(this.template({model:this.model.toJSON(),isNew:isNew,
+            options:this.model.options}));
         return this;
     },
     displayAddEditForm:function(){
@@ -440,7 +442,7 @@ window.StorageDetailView = Backbone.View.extend({
     saveStorage:function(){
         this.model.set({
             type:$("#typeInput").val(),
-            entities:$("#entitiesInput").val(),
+            entities:$("#entityInput").val(),
             perEntity:$("#perEntityInput").val(),
             name:$("#nameInput").val(),
             description:$("#descriptionInput").val()
@@ -458,5 +460,11 @@ window.StorageDetailView = Backbone.View.extend({
           App.Collections.storages.remove(this.model);
           App.Routers.mediaRouter.navigate("#storage",{trigger:true});
       }
+    },
+    changeEntityLabel:function(event){
+        newEntityLabel = this.model.options.types[$(event.currentTarget).val()].entityLabel;
+        newEntitySingular = this.model.options.types[$(event.currentTarget).val()].entitySingular;
+        $(".entityLabel").html(newEntityLabel);
+        $(".entitySingular").html(newEntitySingular);
     }
 });
